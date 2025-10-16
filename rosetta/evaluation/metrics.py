@@ -241,8 +241,7 @@ def compute_bleu_score(
 
     # Convert to sacrebleu format
     if isinstance(references[0], str):
-        references_formatted = [[ref] for ref in references]  # type: ignore[misc]
-        references = references_formatted  # type: ignore[list-item]
+        references = [[ref] for ref in references]  # type: ignore[assignment]
     elif isinstance(references[0], list):
         # Transpose list of lists
         references = list(zip(*references))  # type: ignore[arg-type]
@@ -347,8 +346,7 @@ def compute_chrf_score(
 
     # Convert to sacrebleu format
     if isinstance(references[0], str):
-        references_formatted = [[ref] for ref in references]  # type: ignore[misc]
-        references = references_formatted  # type: ignore[list-item]
+        references = [[ref] for ref in references]  # type: ignore[assignment]
     elif isinstance(references[0], list):
         references = list(zip(*references))  # type: ignore[arg-type]
 

@@ -294,7 +294,7 @@ class FAISSIndex:
 
     def __len__(self) -> int:
         """Get number of documents in index."""
-        return self.index.ntotal
+        return int(self.index.ntotal)  # type: ignore[no-any-return]
 
 
 # ============================================================================

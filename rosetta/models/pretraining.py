@@ -336,7 +336,7 @@ class DomainPretrainer:
         self.model = AutoModelForMaskedLM.from_pretrained(model_name)
 
         # Vocabulary expander
-        self.vocab_expander = None
+        self.vocab_expander: Optional[VocabularyExpander] = None
 
         logger.info(
             f"Initialized pretrainer with {self.model.num_parameters():,} parameters"  # type: ignore[attr-defined]
@@ -354,7 +354,7 @@ class DomainPretrainer:
 
         logger.info("Expanding vocabulary...")
 
-        self.vocab_expander: Optional[VocabularyExpander] = VocabularyExpander(
+        self.vocab_expander = VocabularyExpander(
             tokenizer=self.tokenizer,
             max_new_tokens=self.args.vocab_expansion_size,
             min_frequency=self.args.min_token_frequency,

@@ -11,7 +11,7 @@ import hashlib
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import torch
 import torch.nn.functional as F
@@ -501,7 +501,7 @@ class InferenceEngine:
         # Cache result
         self._add_to_cache(cache_key, entities)
 
-        return entities
+        return cast(List[Dict[str, Any]], entities)
 
     async def predict_relation(
         self,

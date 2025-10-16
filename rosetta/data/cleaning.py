@@ -71,9 +71,11 @@ class UnicodeNormalizer:
             text = ftfy.fix_text(text, fix_entities=self.fix_entities)
 
         # Apply unicode normalization
-        from typing import cast
+        from typing import Literal, cast
 
-        text = unicodedata.normalize(cast(str, self.normalization_form), text)
+        text = unicodedata.normalize(
+            cast(Literal["NFC", "NFD", "NFKC", "NFKD"], self.normalization_form), text
+        )
 
         return text
 
@@ -663,7 +665,7 @@ class SentenceSegmenter:
             "max_sentence_length": max(len(s) for s in sentences) if sentences else 0,
         }
 
-        return sentences, stats
+        return sentences, stats  # type: ignore[return-value]
 
     def segment_corpus(
         self, documents: List[Document], show_progress: bool = True

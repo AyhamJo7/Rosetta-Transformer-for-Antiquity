@@ -758,8 +758,8 @@ def evaluate(
 
             model = TokenClassificationModel.load_from_checkpoint(model_path)
             # Run inference (simplified)
-            predictions = []
-            references = []
+            predictions: list = []  # type: ignore[var-annotated]
+            references: list = []  # type: ignore[var-annotated]
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference
@@ -776,8 +776,8 @@ def evaluate(
             from rosetta.models.token_tasks import RelationExtractionModel
 
             model = RelationExtractionModel.load_from_checkpoint(model_path)
-            predictions = []
-            references = []
+            predictions: list = []  # type: ignore[var-annotated]
+            references: list = []  # type: ignore[var-annotated]
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference
@@ -792,8 +792,8 @@ def evaluate(
             from rosetta.models.seq2seq import Seq2SeqModel
 
             model = Seq2SeqModel.load_from_checkpoint(model_path)
-            predictions = []
-            references = []
+            predictions: list = []  # type: ignore[var-annotated]
+            references: list = []  # type: ignore[var-annotated]
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference

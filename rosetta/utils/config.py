@@ -303,7 +303,7 @@ class Config(BaseSettings):
         Returns:
             Dictionary representation of configuration
         """
-        return self.model_dump()
+        return self.model_dump()  # type: ignore[no-any-return]
 
     def create_output_dirs(self) -> None:
         """Create output directories specified in configuration."""

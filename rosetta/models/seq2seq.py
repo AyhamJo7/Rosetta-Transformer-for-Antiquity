@@ -582,10 +582,10 @@ def beam_search_decode(
             early_stopping=early_stopping,
         )
 
-        return generated.tolist()  # type: ignore[return-value]
+        return generated.tolist()  # type: ignore[no-any-return]
 
     # Fallback: return input (this should not happen with proper models)
-    return input_ids.tolist()  # type: ignore[return-value]
+    return input_ids.tolist()  # type: ignore[no-any-return]
 
 
 class ConstrainedBeamSearch:

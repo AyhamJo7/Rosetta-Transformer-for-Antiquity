@@ -560,7 +560,7 @@ class MetadataNormalizer:
             "PT": "Ptolemaic",
         }
         period_str = str(period_value).upper()
-        return period_map.get(period_str, period_value)
+        return str(period_map.get(period_str, period_value))
 
     def _normalize_language(self, language_value: Any) -> str:
         """Normalize language codes.
@@ -581,7 +581,7 @@ class MetadataNormalizer:
             "akkadian": "akk",
         }
         lang_str = str(language_value).lower()
-        return lang_map.get(lang_str, language_value)
+        return str(lang_map.get(lang_str, language_value))
 
 
 class CorpusBuilder:

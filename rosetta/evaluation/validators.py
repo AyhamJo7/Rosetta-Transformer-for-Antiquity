@@ -409,7 +409,7 @@ def categorize_ner_errors(
                             }
                         )
 
-    return dict(errors)
+    return dict(errors)  # type: ignore[arg-type,return-value]
 
 
 def categorize_relation_errors(
@@ -487,7 +487,7 @@ def categorize_relation_errors(
                         }
                     )
 
-    return dict(errors)
+    return dict(errors)  # type: ignore[arg-type,return-value]
 
 
 def compute_historian_utility_score(
