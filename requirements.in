@@ -1,0 +1,6 @@
+# Core application dependencies
+# Use pip-compile requirements.in > requirements.txt to lock versions
+
+fastapi
+uvicorn[standard]
+python-multipart # For form data in FastAPI

@@ -1,0 +1,24 @@
+# Development and testing dependencies
+# Use pip-compile requirements-dev.in > requirements-dev.txt to lock versions
+
+-r requirements.in
+
+# --- LINTING & FORMATTING ---
+black
+ruff
+isort
+
+# --- TYPE CHECKING ---
+mypy
+types-requests
+
+# --- TESTING ---
+pytest
+pytest-cov
+requests # For testing API endpoints
+
+# --- HOOKS ---
+pre-commit
+
+# --- DEPENDENCY MANAGEMENT ---
+pip-tools

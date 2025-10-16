@@ -1,0 +1,93 @@
+# Example configuration file for Rosetta Transformer
+
+# Global settings
+seed: 42
+device: auto  # auto, cuda, cpu, or mps
+log_level: INFO
+output_dir: outputs
+
+# Model configuration
+model:
+  model_name: bert-base-multilingual-cased
+  max_length: 512
+  d_model: 768
+  n_heads: 12
+  n_layers: 12
+  d_ff: 3072
+  dropout: 0.1
+
+  # Training hyperparameters
+  learning_rate: 5.0e-05
+  weight_decay: 0.01
+  warmup_steps: 1000
+  max_steps: 100000
+  batch_size: 32
+  eval_batch_size: 64
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+
+  # Checkpointing
+  checkpoint_dir: checkpoints
+  checkpoint_every: 1000
+  resume_from_checkpoint: null
+
+# Data configuration
+data:
+  data_dir: data
+  train_file: null
+  val_file: null
+  test_file: null
+
+  # Language settings
+  source_lang: en
+  target_lang: grc  # Ancient Greek
+  languages:
+    - en
+    - grc  # Ancient Greek
+    - la   # Latin
+    - ar   # Arabic
+
+  # Sequence lengths
+  max_source_length: 512
+  max_target_length: 512
+
+  # Data splits
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
+  # Data loading
+  num_workers: 4
+  cache_dir: .cache
+  preprocessing_num_workers: 4
+  overwrite_cache: false
+
+# API configuration
+api:
+  host: 0.0.0.0
+  port: 8000
+  reload: false
+  workers: 1
+
+  # CORS settings
+  cors_origins:
+    - "*"
+  cors_credentials: true
+  cors_methods:
+    - "*"
+  cors_headers:
+    - "*"
+
+  # Model serving
+  model_path: null
+  max_batch_size: 32
+  timeout: 30
+
+# MLflow configuration
+mlflow:
+  tracking_uri: ./mlruns
+  experiment_name: rosetta-transformer
+  run_name: null
+  log_model: true
+  log_every: 100
+  artifact_location: null
