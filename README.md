@@ -1,4 +1,11 @@
 # Rosetta-Transformer-for-Antiquity
+[![CI](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml/badge.svg)](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<p align="center">
+  <img src="rosetta/Rosetta-Transformer-for-Antiquity.png" alt="Rosetta-Transformer-for-Antiquity Logo" width="400"/>
+</p>
 
 A multilingual Transformer-based system to aid in the deciphering, analysis, and scholarly exploration of ancient and low-resource texts. This project provides a full-stack environment for corpus curation, model training, and interactive analysis.
 
