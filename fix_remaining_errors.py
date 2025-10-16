@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fix remaining critical mypy errors."""
+"""Fix all remaining mypy errors."""
 
 from pathlib import Path
 
@@ -10,66 +10,49 @@ def fix_file(filepath: str, replacements: list):
     content = path.read_text()
 
     for old, new in replacements:
-        content = content.replace(old, new)
+        if isinstance(old, str):
+            content = content.replace(old, new)
+        else:  # regex pattern
+            content = old.sub(new, content)
 
     path.write_text(content)
     print(f"Fixed {filepath}")
 
 
-# Fix rosetta/models/base.py - best_metric type issues
+# Fix rosetta/data/cleaning.py - Pattern type and regex error
 fix_file(
-    "rosetta/models/base.py",
+    "rosetta/data/cleaning.py",
     [
         (
-            "        self.best_metric = None",
-            "        self.best_metric: Optional[float] = None",
+            "import re\nimport unicodedata\nfrom typing import Dict, List, Optional, Set, Tuple",
+            "import re\nimport unicodedata\nfrom typing import Dict, List, Optional, Pattern, Set, Tuple",
         ),
         (
-            "        self.best_model_checkpoint = None",
-            "        self.best_model_checkpoint: Optional[str] = None",
+            '        # Common gap notations: [...], &, ..., ---\n        text = re.sub(r"\\.{3,}|\\u2026|+|-{3,}", self.gap_marker, text)',
+            '        # Common gap notations: [...], &, ..., ---\n        text = re.sub(r"\\.{3,}|\\u2026|\\+|-{3,}", self.gap_marker, text)',
         ),
         (
-            "            self.best_model_checkpoint: Optional[str] = checkpoint_dir",
-            "            self.best_model_checkpoint = checkpoint_dir",
+            "        if delimiters:\n            self.delimiter_pattern = re.compile(f\"[{''.join(delimiters)}]\")\n        else:\n            self.delimiter_pattern = None",
+            "        if delimiters:\n            self.delimiter_pattern: Optional[Pattern[str]] = re.compile(f\"[{''.join(delimiters)}]\")\n        else:\n            self.delimiter_pattern = None",
         ),
     ],
 )
 
-# Fix rosetta/models/token_tasks.py - CRF type
+# Fix rosetta/api/main.py - Add type ignore comments for Pydantic model differences
+# The API models (Entity, Relation) are different from rosetta.data.schemas versions
+# They're simpler request/response models, not the full domain models
 fix_file(
-    "rosetta/models/token_tasks.py",
+    "rosetta/api/main.py",
     [
         (
-            "        if use_crf:\n            self.crf = ConditionalRandomField(num_labels)\n        else:\n            self.crf = None",
-            "        if use_crf:\n            self.crf: Optional[ConditionalRandomField] = ConditionalRandomField(num_labels)\n        else:\n            self.crf: Optional[ConditionalRandomField] = None",
+            'class Entity(BaseModel):\n    """Named entity with position and label."""',
+            'class Entity(BaseModel):  # type: ignore[misc]\n    """Named entity with position and label."""',
+        ),
+        (
+            'class Relation(BaseModel):\n    """Relation between two entities."""',
+            'class Relation(BaseModel):  # type: ignore[misc]\n    """Relation between two entities."""',
         ),
     ],
 )
 
-# Fix rosetta/data/annotation.py - Relation missing evidence_text
-fix_file(
-    "rosetta/data/annotation.py",
-    [
-        (
-            "                        relation = Relation(\n                            head=head,\n                            tail=tail,\n                            label=relation_label,\n                            confidence=confidence,\n                        )",
-            "                        relation = Relation(\n                            head=head,\n                            tail=tail,\n                            label=relation_label,\n                            confidence=confidence,\n                            evidence_text=None,\n                        )",
-        ),
-    ],
-)
-
-# Fix rosetta/evaluation/metrics.py - callable type
-fix_file(
-    "rosetta/evaluation/metrics.py",
-    [
-        (
-            "from typing import Dict, List, Optional, Tuple, Union",
-            "from typing import Callable, Dict, List, Optional, Tuple, Union",
-        ),
-        (
-            "    compute_metrics: Optional[callable] = None,",
-            "    compute_metrics: Optional[Callable] = None,",
-        ),
-    ],
-)
-
-print("Applied fixes for critical errors")
+print("Applied all remaining mypy fixes")
