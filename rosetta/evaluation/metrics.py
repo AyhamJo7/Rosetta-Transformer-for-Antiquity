@@ -596,7 +596,7 @@ def compute_seq2seq_metrics(
     else:
         single_refs = [r[0] if isinstance(r, list) else r for r in references]
 
-    metrics = {}
+    metrics: Dict[str, Any] = {}
 
     # BLEU
     bleu_metrics = compute_bleu_score(predictions, references)
