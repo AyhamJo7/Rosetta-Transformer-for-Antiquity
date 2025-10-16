@@ -205,6 +205,7 @@ class FeedbackStore:
         Returns:
             List of feedback entries
         """
+        results: List[Dict[str, Any]] = []
         if self.backend == "sqlite":
             conn = sqlite3.connect(str(self.db_path))
             cursor = conn.cursor()
@@ -267,7 +268,7 @@ class FeedbackStore:
 
             return results
 
-    async def get_statistics(self) -> Dict[str, int]:  # type: ignore[return]
+    async def get_statistics(self) -> Dict[str, int]:
         """Get feedback statistics.
 
         Returns:
@@ -299,6 +300,8 @@ class FeedbackStore:
                 stats[entry["task_type"]] += 1
 
             return dict(stats)
+
+        return {}
 
     async def mark_used_for_training(self, feedback_ids: List[str]) -> None:
         """Mark feedback entries as used for training.
@@ -354,8 +357,8 @@ class FeedbackStore:
         Returns:
             Dictionary mapping task types to output file paths
         """
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir_path: Path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
 
         # Get feedback
         feedback = await self.get_feedback(task_type=task_type, unused_only=unused_only)
@@ -365,16 +368,17 @@ class FeedbackStore:
         for entry in feedback:
             by_task[entry["task_type"]].append(entry)
 
-        output_files = {}
+        output_files: Dict[str, str] = {}
 
         # Export each task type
         for task, entries in by_task.items():
+            output_file: Path
             if format == "jsonl":
-                output_file = output_dir / f"{task}_feedback.jsonl"
+                output_file = output_dir_path / f"{task}_feedback.jsonl"
                 self._export_jsonl(entries, output_file, task)
             elif format == "conll":
                 if task == "ner":
-                    output_file = output_dir / f"{task}_feedback.conll"
+                    output_file = output_dir_path / f"{task}_feedback.conll"
                     self._export_conll_ner(entries, output_file)
                 else:
                     logger.warning(f"CoNLL format not supported for task: {task}")

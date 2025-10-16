@@ -240,13 +240,16 @@ def compute_bleu_score(
         return _compute_simple_bleu(predictions, references, max_order)
 
     # Convert to sacrebleu format
+    refs_formatted: List[List[str]]
     if isinstance(references[0], str):
-        references = [[ref] for ref in references]  # type: ignore[assignment]
+        refs_formatted = [[str(ref)] for ref in references]
     elif isinstance(references[0], list):
         # Transpose list of lists
-        references = list(zip(*references))  # type: ignore[arg-type]
+        refs_formatted = [list(ref_group) for ref_group in zip(*references)]  # type: ignore[arg-type]
+    else:
+        refs_formatted = [[str(ref)] for ref in references]
 
-    bleu = corpus_bleu(predictions, references, max_order=max_order)
+    bleu = corpus_bleu(predictions, refs_formatted, max_order=max_order)
 
     return {
         "bleu": bleu.score,
@@ -265,11 +268,11 @@ def _compute_simple_bleu(
     """Simple BLEU implementation when sacrebleu is not available."""
 
     def get_ngrams(tokens: List[str], n: int) -> Dict[Tuple[str, ...], int]:
-        ngrams = defaultdict(int)
+        ngrams: Dict[Tuple[str, ...], int] = defaultdict(int)
         for i in range(len(tokens) - n + 1):
             ngram = tuple(tokens[i : i + n])
             ngrams[ngram] += 1
-        return ngrams
+        return dict(ngrams)
 
     total_precisions = [0.0] * max_order
     total_matches = [0] * max_order
@@ -345,14 +348,17 @@ def compute_chrf_score(
         return 0.0
 
     # Convert to sacrebleu format
+    refs_formatted: List[List[str]]
     if isinstance(references[0], str):
-        references = [[ref] for ref in references]  # type: ignore[assignment]
+        refs_formatted = [[str(ref)] for ref in references]
     elif isinstance(references[0], list):
-        references = list(zip(*references))  # type: ignore[arg-type]
+        refs_formatted = [list(ref_group) for ref_group in zip(*references)]  # type: ignore[arg-type]
+    else:
+        refs_formatted = [[str(ref)] for ref in references]
 
     chrf = corpus_chrf(
         predictions,
-        references,
+        refs_formatted,
         char_order=char_order,
         word_order=word_order,
         beta=beta,
@@ -610,7 +616,7 @@ def compute_seq2seq_metrics(
         logger.info("Computing bootstrap confidence intervals...")
 
         # BLEU CI
-        bleu_ci: Dict[str, float] = bootstrap_confidence_interval(  # type: ignore[assignment]
+        bleu_ci: Dict[str, float] = bootstrap_confidence_interval(
             lambda p, r: compute_bleu_score(p, r)["bleu"],
             predictions,
             references,
@@ -618,7 +624,7 @@ def compute_seq2seq_metrics(
         metrics["bleu_ci"] = bleu_ci
 
         # Exact match CI
-        em_ci: Dict[str, float] = bootstrap_confidence_interval(  # type: ignore[assignment]
+        em_ci: Dict[str, float] = bootstrap_confidence_interval(
             compute_exact_match,
             predictions,
             single_refs,

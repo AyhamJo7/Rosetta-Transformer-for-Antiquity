@@ -7,7 +7,7 @@ including data preparation, training, evaluation, and serving.
 import json
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import click
 from tqdm import tqdm
@@ -150,22 +150,19 @@ def prepare(
         if languages:
             cfg.data.languages = list(languages)
 
-        builder = CorpusBuilder(config=cfg)
+        builder = CorpusBuilder()
 
         input_path = Path(input_dir)
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Process files with progress bar
-        files = list(input_path.glob("**/*"))
-        with tqdm(total=len(files), desc="Processing files") as pbar:
-            # Note: build_from_directory method needs to be implemented in CorpusBuilder
-            corpus = builder.build_from_files(  # type: ignore[attr-defined]
-                input_path,
-                output_path=output_path,
-                output_format=format,
-                progress_callback=lambda: pbar.update(1),
-            )
+        files = [f for f in input_path.glob("**/*") if f.is_file()]
+        corpus = builder.build_from_files(
+            file_paths=files,
+            output_file=output_path / f"corpus.{format}",
+            show_progress=True,
+        )
 
         print_success(f"Prepared {len(corpus)} documents")
         print_info(f"Output saved to {output_path}")
@@ -356,13 +353,14 @@ def annotate(
         print_info(f"Loaded {len(documents)} documents")
 
         # Annotate with progress bar
-        annotated_docs = []
-        with tqdm(total=len(documents), desc=f"Annotating ({task})") as pbar:
-            for i in range(0, len(documents), batch_size):
-                batch = documents[i : i + batch_size]
-                annotated_batch = pipeline.annotate_batch(batch, task=task)
-                annotated_docs.extend(annotated_batch)
-                pbar.update(len(batch))
+        annotated_docs: List[Dict[str, Any]] = []
+        if pipeline is not None:
+            with tqdm(total=len(documents), desc=f"Annotating ({task})") as pbar:
+                for i in range(0, len(documents), batch_size):
+                    batch = documents[i : i + batch_size]
+                    annotated_batch = pipeline.annotate_batch(batch, task=task)
+                    annotated_docs.extend(annotated_batch)
+                    pbar.update(len(batch))
 
         # Save annotated corpus
         output_path = Path(output_file)
@@ -466,14 +464,14 @@ def pretrain(
         # Note: Use DomainPretrainer instead
         from rosetta.models.pretraining import DomainPretrainer
 
-        pipeline = DomainPretrainer(model_name=model_name)  # type: ignore[call-arg]
+        pipeline = DomainPretrainer(model_name=model_name)
 
         print_info(f"Base model: {model_name}")
         print_info(f"Training steps: {cfg.model.max_steps}")
         print_info(f"Batch size: {cfg.model.batch_size}")
 
         # Train
-        pipeline.train(corpus_path=corpus)
+        pipeline.train(corpus=corpus)  # type: ignore[call-arg]
 
         print_success("Pretraining completed")
         print_info(f"Checkpoints saved to {output_dir}")
@@ -753,13 +751,14 @@ def evaluate(
         # Load model and run inference
         print_info("Loading model and running inference...")
 
+        metrics: Dict[str, Any]
         if task == "ner":
             from rosetta.models.token_tasks import TokenClassificationModel
 
             model = TokenClassificationModel.load_from_checkpoint(model_path)
             # Run inference (simplified)
-            predictions: list = []  # type: ignore[var-annotated]
-            references: list = []  # type: ignore[var-annotated]
+            predictions_ner: List[Any] = []
+            references_ner: List[Any] = []
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference
@@ -767,8 +766,8 @@ def evaluate(
 
             # Compute metrics
             metrics = compute_ner_metrics(
-                predictions=predictions,
-                references=references,
+                predictions=predictions_ner,
+                references=references_ner,
                 average="micro",
             )
 
@@ -776,32 +775,32 @@ def evaluate(
             from rosetta.models.token_tasks import RelationExtractionModel
 
             model = RelationExtractionModel.load_from_checkpoint(model_path)
-            predictions: list = []  # type: ignore[var-annotated]
-            references: list = []  # type: ignore[var-annotated]
+            predictions_relation: List[Any] = []
+            references_relation: List[Any] = []
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference
                 pbar.update(len(test_data))
 
             metrics = compute_relation_metrics(
-                predictions=predictions,
-                references=references,
+                predictions=predictions_relation,
+                references=references_relation,
             )
 
         elif task == "seq2seq":
             from rosetta.models.seq2seq import Seq2SeqModel
 
             model = Seq2SeqModel.load_from_checkpoint(model_path)
-            predictions: list = []  # type: ignore[var-annotated]
-            references: list = []  # type: ignore[var-annotated]
+            predictions_seq2seq: List[Any] = []
+            references_seq2seq: List[Any] = []
 
             with tqdm(total=len(test_data), desc="Evaluating") as pbar:
                 # TODO: Implement actual inference
                 pbar.update(len(test_data))
 
             metrics = compute_seq2seq_metrics(
-                predictions=predictions,
-                references=references,
+                predictions=predictions_seq2seq,
+                references=references_seq2seq,
                 include_bootstrap=bootstrap,
             )
 

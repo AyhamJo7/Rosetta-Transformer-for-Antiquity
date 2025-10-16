@@ -272,8 +272,8 @@ class DeduplicateTexts:
             f"(fuzzy matching, threshold={self.similarity_threshold})"
         )
 
-        unique_docs = []
-        duplicates_count = 0
+        unique_docs: List[Document] = []
+        duplicates_count: int = 0
 
         doc_iter = tqdm(documents, desc="Deduplicating") if show_progress else documents
 
