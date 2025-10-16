@@ -501,7 +501,11 @@ class InferenceEngine:
         # Cache result
         self._add_to_cache(cache_key, entities)
 
-        return entities
+        # Return as list of dicts
+        result: List[Dict[str, Any]] = [
+            dict(ent) if hasattr(ent, "__dict__") else ent for ent in entities
+        ]
+        return result
 
     async def predict_relation(
         self,

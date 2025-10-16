@@ -616,19 +616,19 @@ def compute_seq2seq_metrics(
         logger.info("Computing bootstrap confidence intervals...")
 
         # BLEU CI
-        bleu_ci: Dict[str, float] = bootstrap_confidence_interval(
+        bleu_ci_result: Dict[str, float] = bootstrap_confidence_interval(
             lambda p, r: compute_bleu_score(p, r)["bleu"],
             predictions,
             references,
         )
-        metrics["bleu_ci"] = bleu_ci
+        metrics.update({"bleu_ci": bleu_ci_result})
 
         # Exact match CI
-        em_ci: Dict[str, float] = bootstrap_confidence_interval(
+        em_ci_result: Dict[str, float] = bootstrap_confidence_interval(
             compute_exact_match,
             predictions,
             single_refs,
         )
-        metrics["exact_match_ci"] = em_ci
+        metrics.update({"exact_match_ci": em_ci_result})
 
     return metrics

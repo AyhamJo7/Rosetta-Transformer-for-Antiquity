@@ -7,7 +7,7 @@ including data preparation, training, evaluation, and serving.
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import click
 from tqdm import tqdm
@@ -157,7 +157,9 @@ def prepare(
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Process files with progress bar
-        files = [f for f in input_path.glob("**/*") if f.is_file()]
+        files: List[Union[str, Path]] = [
+            f for f in input_path.glob("**/*") if f.is_file()
+        ]
         corpus = builder.build_from_files(
             file_paths=files,
             output_file=output_path / f"corpus.{format}",

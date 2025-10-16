@@ -211,7 +211,7 @@ class FeedbackStore:
             cursor = conn.cursor()
 
             query = "SELECT * FROM feedback WHERE 1=1"
-            params = []
+            params: List[Any] = []
 
             if task_type:
                 query += " AND task_type = ?"
@@ -267,6 +267,8 @@ class FeedbackStore:
                 results = results[:limit]
 
             return results
+
+        return results
 
     async def get_statistics(self) -> Dict[str, int]:
         """Get feedback statistics.
