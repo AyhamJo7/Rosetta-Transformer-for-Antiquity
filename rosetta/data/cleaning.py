@@ -8,7 +8,7 @@ deduplication, and sentence segmentation.
 import hashlib
 import re
 import unicodedata
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Pattern, Set, Tuple
 
 import ftfy
 from tqdm import tqdm
@@ -605,7 +605,9 @@ class SentenceSegmenter:
             delimiters.extend(re.escape(d) for d in custom_delimiters)
 
         if delimiters:
-            self.delimiter_pattern = re.compile(f"[{''.join(delimiters)}]")
+            self.delimiter_pattern: Optional[Pattern[str]] = re.compile(
+                f"[{''.join(delimiters)}]"
+            )
         else:
             self.delimiter_pattern = None
 

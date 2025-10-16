@@ -355,12 +355,11 @@ class TokenClassificationModel(BaseModel):
         self.classifier = nn.Linear(hidden_size, num_labels)
 
         # Optional CRF layer
+        self.crf: Optional[ConditionalRandomField]
         if use_crf:
-            self.crf: Optional[ConditionalRandomField] = ConditionalRandomField(
-                num_labels
-            )
+            self.crf = ConditionalRandomField(num_labels)
         else:
-            self.crf: Optional[ConditionalRandomField] = None
+            self.crf = None
 
         # Store config
         self.config.update(
@@ -373,7 +372,7 @@ class TokenClassificationModel(BaseModel):
             }
         )
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,

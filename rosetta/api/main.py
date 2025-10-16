@@ -70,7 +70,7 @@ class NERRequest(BaseModel):
         return v
 
 
-class Entity(BaseModel):
+class Entity(BaseModel):  # type: ignore[misc]
     """Named entity with position and label."""
 
     text: str = Field(..., description="Entity text")
@@ -105,7 +105,7 @@ class RelationRequest(BaseModel):
     )
 
 
-class Relation(BaseModel):
+class Relation(BaseModel):  # type: ignore[misc]
     """Relation between two entities."""
 
     head: Entity = Field(..., description="Head entity")

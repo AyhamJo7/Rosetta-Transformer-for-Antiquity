@@ -124,7 +124,7 @@ class Seq2SeqModel(BaseModel):
             f"Initialized seq2seq model with {self.num_parameters():,} parameters"
         )
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,

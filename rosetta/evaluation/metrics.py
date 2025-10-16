@@ -5,7 +5,7 @@ tasks on ancient texts, including calibration metrics and bootstrap confidence i
 """
 
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -499,7 +499,7 @@ def compute_expected_calibration_error(
 
 
 def bootstrap_confidence_interval(
-    metric_fn: callable,
+    metric_fn: Callable,
     predictions: Any,
     references: Any,
     n_samples: int = 1000,

@@ -339,7 +339,7 @@ class DomainPretrainer:
         self.vocab_expander = None
 
         logger.info(
-            f"Initialized pretrainer with {self.model.num_parameters():,} parameters"
+            f"Initialized pretrainer with {self.model.num_parameters():,} parameters"  # type: ignore[attr-defined]
         )
 
     def expand_vocabulary(self, corpus: List[str]) -> None:
