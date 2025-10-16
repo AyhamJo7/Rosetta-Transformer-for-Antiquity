@@ -548,7 +548,7 @@ class RelationExtractionModel(BaseModel):
 
         return torch.stack(entity_reps)
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,

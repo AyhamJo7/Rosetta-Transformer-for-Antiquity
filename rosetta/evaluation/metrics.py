@@ -241,10 +241,11 @@ def compute_bleu_score(
 
     # Convert to sacrebleu format
     if isinstance(references[0], str):
-        references = [[ref] for ref in references]
+        references_formatted = [[ref] for ref in references]  # type: ignore[misc]
+        references = references_formatted  # type: ignore[list-item]
     elif isinstance(references[0], list):
         # Transpose list of lists
-        references = list(zip(*references))
+        references = list(zip(*references))  # type: ignore[arg-type]
 
     bleu = corpus_bleu(predictions, references, max_order=max_order)
 
@@ -284,7 +285,7 @@ def _compute_simple_bleu(
 
         for n in range(1, max_order + 1):
             pred_ngrams = get_ngrams(pred_tokens, n)
-            max_ref_ngrams = defaultdict(int)
+            max_ref_ngrams: defaultdict[Tuple[str, ...], int] = defaultdict(int)
 
             for ref_tokens in ref_tokens_list:
                 ref_ngrams = get_ngrams(ref_tokens, n)
@@ -346,9 +347,10 @@ def compute_chrf_score(
 
     # Convert to sacrebleu format
     if isinstance(references[0], str):
-        references = [[ref] for ref in references]
+        references_formatted = [[ref] for ref in references]  # type: ignore[misc]
+        references = references_formatted  # type: ignore[list-item]
     elif isinstance(references[0], list):
-        references = list(zip(*references))
+        references = list(zip(*references))  # type: ignore[arg-type]
 
     chrf = corpus_chrf(
         predictions,
@@ -358,7 +360,7 @@ def compute_chrf_score(
         beta=beta,
     )
 
-    return chrf.score
+    return float(chrf.score)
 
 
 def compute_exact_match(
@@ -410,7 +412,7 @@ def compute_character_error_rate(
         if len(s2) == 0:
             return len(s1)
 
-        previous_row = range(len(s2) + 1)
+        previous_row: Union[range, list[int]] = range(len(s2) + 1)
         for i, c1 in enumerate(s1):
             current_row = [i + 1]
             for j, c2 in enumerate(s2):
@@ -494,7 +496,7 @@ def compute_expected_calibration_error(
     return {
         "ece": float(ece),
         "n_bins": n_bins,
-        "bins": bin_data,
+        "bins": bin_data,  # type: ignore[dict-item]
     }
 
 
@@ -584,8 +586,9 @@ def compute_seq2seq_metrics(
         Dictionary with all seq2seq metrics
     """
     # Ensure references is in correct format
+    single_refs: List[str]
     if isinstance(references[0], str):
-        single_refs = references
+        single_refs = references  # type: ignore[assignment]
     else:
         single_refs = [r[0] if isinstance(r, list) else r for r in references]
 
@@ -609,7 +612,7 @@ def compute_seq2seq_metrics(
         logger.info("Computing bootstrap confidence intervals...")
 
         # BLEU CI
-        bleu_ci = bootstrap_confidence_interval(
+        bleu_ci: Dict[str, float] = bootstrap_confidence_interval(  # type: ignore[assignment]
             lambda p, r: compute_bleu_score(p, r)["bleu"],
             predictions,
             references,
@@ -617,7 +620,7 @@ def compute_seq2seq_metrics(
         metrics["bleu_ci"] = bleu_ci
 
         # Exact match CI
-        em_ci = bootstrap_confidence_interval(
+        em_ci: Dict[str, float] = bootstrap_confidence_interval(  # type: ignore[assignment]
             compute_exact_match,
             predictions,
             single_refs,

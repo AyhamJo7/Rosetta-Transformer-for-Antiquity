@@ -267,7 +267,7 @@ class FeedbackStore:
 
             return results
 
-    async def get_statistics(self) -> Dict[str, int]:
+    async def get_statistics(self) -> Dict[str, int]:  # type: ignore[return]
         """Get feedback statistics.
 
         Returns:

@@ -219,7 +219,7 @@ class VocabularyExpander:
         from collections import Counter
 
         # Extract character n-grams and words
-        candidates = Counter()
+        candidates: Counter[str] = Counter()
 
         for text in corpus:
             # Split into tokens (simple whitespace splitting)
@@ -354,7 +354,7 @@ class DomainPretrainer:
 
         logger.info("Expanding vocabulary...")
 
-        self.vocab_expander = VocabularyExpander(
+        self.vocab_expander: Optional[VocabularyExpander] = VocabularyExpander(
             tokenizer=self.tokenizer,
             max_new_tokens=self.args.vocab_expansion_size,
             min_frequency=self.args.min_token_frequency,
@@ -362,7 +362,8 @@ class DomainPretrainer:
 
         # Expand vocabulary
         old_vocab_size = len(self.tokenizer)
-        self.tokenizer = self.vocab_expander.expand_vocabulary(corpus)
+        if self.vocab_expander is not None:
+            self.tokenizer = self.vocab_expander.expand_vocabulary(corpus)
         new_vocab_size = len(self.tokenizer)
 
         # Resize model embeddings
@@ -555,9 +556,9 @@ class DomainPretrainer:
 
         # Load arguments if available
         args_path = load_directory / "pretraining_args.json"
-        args = None
+        args: Optional[PretrainingArguments] = None
         if args_path.exists():
-            args = PretrainingArguments.load(args_path)
+            args = PretrainingArguments.load(args_path)  # type: ignore[assignment]
 
         # Create instance with loaded model
         pretrainer = cls(model_name=str(load_directory), args=args)

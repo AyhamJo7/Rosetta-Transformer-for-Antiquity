@@ -8,7 +8,7 @@ deduplication, and sentence segmentation.
 import hashlib
 import re
 import unicodedata
-from typing import Dict, List, Optional, Pattern, Set, Tuple
+from typing import Dict, List, Optional, Pattern, Set, Tuple, Union
 
 import ftfy
 from tqdm import tqdm
@@ -71,7 +71,9 @@ class UnicodeNormalizer:
             text = ftfy.fix_text(text, fix_entities=self.fix_entities)
 
         # Apply unicode normalization
-        text = unicodedata.normalize(self.normalization_form, text)
+        from typing import cast
+
+        text = unicodedata.normalize(cast(str, self.normalization_form), text)
 
         return text
 
@@ -225,7 +227,7 @@ class DeduplicateTexts:
         self.logger.info(f"Deduplicating {len(documents)} documents (exact matching)")
 
         seen_hashes: Set[str] = set()
-        unique_docs = []
+        unique_docs: List[Document] = []
         duplicates_count = 0
 
         doc_iter = tqdm(documents, desc="Deduplicating") if show_progress else documents
@@ -652,7 +654,7 @@ class SentenceSegmenter:
         """
         sentences = self.segment_text(document.text)
 
-        stats = {
+        stats: Dict[str, Union[int, float]] = {
             "num_sentences": len(sentences),
             "avg_sentence_length": (
                 sum(len(s) for s in sentences) / len(sentences) if sentences else 0

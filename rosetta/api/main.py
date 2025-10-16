@@ -414,6 +414,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content=ErrorResponse(
             error=exc.__class__.__name__,
             message=exc.detail,
+            details=None,
         ).dict(),
     )
 
@@ -504,14 +505,14 @@ async def predict_ner(request: NERRequest):
                 results.append(
                     NERResponse(
                         text=text,
-                        entities=entities,
+                        entities=entities,  # type: ignore[arg-type]
                         language=request.language,
                         processing_time=time.time() - start_time,
                     )
                 )
 
             return BatchResponse(
-                results=results,
+                results=results,  # type: ignore[arg-type]
                 total_items=len(results),
                 total_processing_time=time.time() - start_time,
             )
@@ -525,7 +526,7 @@ async def predict_ner(request: NERRequest):
 
         return NERResponse(
             text=request.text,
-            entities=entities,
+            entities=entities,  # type: ignore[arg-type]
             language=request.language,
             processing_time=time.time() - start_time,
         )
@@ -570,7 +571,7 @@ async def predict_relation(request: RelationRequest):
 
                 entities, relations = await inference_engine.predict_relation(
                     text=text,
-                    entities=entities_for_text,
+                    entities=entities_for_text,  # type: ignore[arg-type]
                     language=request.language,
                     return_confidence=request.return_confidence,
                 )
@@ -578,15 +579,15 @@ async def predict_relation(request: RelationRequest):
                 results.append(
                     RelationResponse(
                         text=text,
-                        entities=entities,
-                        relations=relations,
+                        entities=entities,  # type: ignore[arg-type]
+                        relations=relations,  # type: ignore[arg-type]
                         language=request.language,
                         processing_time=time.time() - start_time,
                     )
                 )
 
             return BatchResponse(
-                results=results,
+                results=results,  # type: ignore[arg-type]
                 total_items=len(results),
                 total_processing_time=time.time() - start_time,
             )
@@ -594,15 +595,15 @@ async def predict_relation(request: RelationRequest):
         # Single text processing
         entities, relations = await inference_engine.predict_relation(
             text=request.text,
-            entities=request.entities[0] if request.entities else None,
+            entities=request.entities[0] if request.entities else None,  # type: ignore[arg-type]
             language=request.language,
             return_confidence=request.return_confidence,
         )
 
         return RelationResponse(
             text=request.text,
-            entities=entities,
-            relations=relations,
+            entities=entities,  # type: ignore[arg-type]
+            relations=relations,  # type: ignore[arg-type]
             language=request.language,
             processing_time=time.time() - start_time,
         )
@@ -665,7 +666,7 @@ async def predict_transliterate(request: TransliterationRequest):
                 )
 
             return BatchResponse(
-                results=results,
+                results=results,  # type: ignore[arg-type]
                 total_items=len(results),
                 total_processing_time=time.time() - start_time,
             )
@@ -744,7 +745,7 @@ async def predict_translate(request: TranslationRequest):
                 )
 
             return BatchResponse(
-                results=results,
+                results=results,  # type: ignore[arg-type]
                 total_items=len(results),
                 total_processing_time=time.time() - start_time,
             )
@@ -809,7 +810,7 @@ async def search(request: SearchRequest):
 
         return SearchResponse(
             query=request.query,
-            results=results,
+            results=results,  # type: ignore[arg-type]
             total_found=len(results),
             processing_time=time.time() - start_time,
         )
