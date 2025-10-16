@@ -274,7 +274,7 @@ from rosetta.utils import (
 
 ## Example Configuration File
 
-See `config.example.yaml` for a complete example configuration file.
+See `configs/config.example.yaml` for a complete example configuration file.
 
 ## Integration Example
 
@@ -329,7 +329,7 @@ if __name__ == "__main__":
 Run the example script to see all utilities in action:
 
 ```bash
-python examples_utils_usage.py
+python examples/examples_utils_usage.py
 ```
 
 ## Design Principles

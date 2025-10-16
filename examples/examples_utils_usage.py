@@ -55,7 +55,7 @@ def example_config_yaml():
     """Demonstrate loading config from YAML."""
     print("\n=== Config from YAML Example ===\n")
 
-    config_path = Path("config.example.yaml")
+    config_path = Path("configs/config.example.yaml")
 
     if config_path.exists():
         # Load config from YAML

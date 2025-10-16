@@ -153,7 +153,7 @@ Clean API with explicit `__all__` export list.
 
 ## Supporting Files Created
 
-### 5. `/home/adam/projects/Rosetta-Transformer-for-Antiquity/config.example.yaml`
+### 5. `configs/config.example.yaml`
 
 Example configuration file demonstrating:
 - All configuration sections
@@ -162,7 +162,7 @@ Example configuration file demonstrating:
 - Comments for each section
 - Ancient language codes (grc, la, ar)
 
-### 6. `/home/adam/projects/Rosetta-Transformer-for-Antiquity/examples_utils_usage.py`
+### 6. `examples/examples_utils_usage.py`
 
 Comprehensive usage examples:
 - Logging setup and usage
@@ -172,7 +172,7 @@ Comprehensive usage examples:
 - Environment variable configuration
 - Complete runnable examples
 
-### 7. `/home/adam/projects/Rosetta-Transformer-for-Antiquity/UTILS_README.md`
+### 7. `docs/reference/UTILS_README.md`
 
 Complete documentation including:
 - Module overview
@@ -285,7 +285,7 @@ To test the utilities (after installing dependencies):
 pip install -r requirements.in
 
 # Run example script
-python examples_utils_usage.py
+python examples/examples_utils_usage.py
 
 # Test imports
 python -c "from rosetta.utils import Config, setup_logging, set_seed; print('Success!')"

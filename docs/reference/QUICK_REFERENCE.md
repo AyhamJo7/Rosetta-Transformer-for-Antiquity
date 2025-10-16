@@ -156,6 +156,6 @@ export MLFLOW_EXPERIMENT_NAME=my-experiment
 - Config classes: `rosetta/utils/config.py`
 - Logging: `rosetta/utils/logging.py`
 - Reproducibility: `rosetta/utils/reproducibility.py`
-- Example config: `config.example.yaml`
-- Usage examples: `examples_utils_usage.py`
-- Full docs: `UTILS_README.md`
+- Example config: `configs/config.example.yaml`
+- Usage examples: `examples/examples_utils_usage.py`
+- Full docs: `docs/reference/UTILS_README.md`
