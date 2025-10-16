@@ -621,7 +621,7 @@ def compute_seq2seq_metrics(
             predictions,
             references,
         )
-        metrics.update({"bleu_ci": bleu_ci_result})
+        metrics["bleu_ci"] = bleu_ci_result
 
         # Exact match CI
         em_ci_result: Dict[str, float] = bootstrap_confidence_interval(
@@ -629,6 +629,6 @@ def compute_seq2seq_metrics(
             predictions,
             single_refs,
         )
-        metrics.update({"exact_match_ci": em_ci_result})
+        metrics["exact_match_ci"] = em_ci_result
 
     return metrics

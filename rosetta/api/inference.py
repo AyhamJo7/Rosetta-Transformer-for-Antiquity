@@ -402,7 +402,7 @@ class InferenceEngine:
             language=language,
             return_confidence=return_confidence,
         )
-        cached = self._get_from_cache(cache_key)
+        cached: Optional[List[Dict[str, Any]]] = self._get_from_cache(cache_key)
         if cached is not None:
             return cached
 
