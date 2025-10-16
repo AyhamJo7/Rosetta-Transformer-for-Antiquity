@@ -11,7 +11,7 @@ import shutil
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import mlflow
 import numpy as np
@@ -319,7 +319,7 @@ class BaseTrainer:
         args: TrainingArguments,
         train_dataloader: Optional[DataLoader] = None,
         eval_dataloader: Optional[DataLoader] = None,
-        compute_metrics: Optional[callable] = None,
+        compute_metrics: Optional[Callable] = None,
     ):
         """Initialize trainer.
 
@@ -494,7 +494,7 @@ class BaseTrainer:
                 loss = outputs.loss / self.args.gradient_accumulation_steps
 
                 # Backward pass
-                if self.args.fp16:
+                if self.args.fp16 and self.scaler is not None:
                     self.scaler.scale(loss).backward()
                 else:
                     loss.backward()
@@ -502,7 +502,11 @@ class BaseTrainer:
                 # Update weights
                 if (step + 1) % self.args.gradient_accumulation_steps == 0:
                     # Gradient clipping
-                    if self.args.fp16:
+                    if (
+                        self.args.fp16
+                        and self.scaler is not None
+                        and self.optimizer is not None
+                    ):
                         self.scaler.unscale_(self.optimizer)
 
                     torch.nn.utils.clip_grad_norm_(
@@ -511,21 +515,32 @@ class BaseTrainer:
                     )
 
                     # Optimizer step
-                    if self.args.fp16:
+                    if (
+                        self.args.fp16
+                        and self.scaler is not None
+                        and self.optimizer is not None
+                    ):
                         self.scaler.step(self.optimizer)
                         self.scaler.update()
-                    else:
+                    elif self.optimizer is not None:
                         self.optimizer.step()
 
-                    self.lr_scheduler.step()
-                    self.optimizer.zero_grad()
+                    if self.lr_scheduler is not None:
+                        self.lr_scheduler.step()
+                    if self.optimizer is not None:
+                        self.optimizer.zero_grad()
                     self.global_step += 1
 
                     # Logging
                     if self.global_step % self.args.logging_steps == 0:
+                        lr = (
+                            self.lr_scheduler.get_last_lr()[0]
+                            if self.lr_scheduler is not None
+                            else 0.0
+                        )
                         metrics = {
                             "loss": loss.item() * self.args.gradient_accumulation_steps,
-                            "learning_rate": self.lr_scheduler.get_last_lr()[0],
+                            "learning_rate": lr,
                             "epoch": epoch,
                             "step": self.global_step,
                         }
@@ -644,7 +659,11 @@ class BaseTrainer:
             predictions = torch.cat(all_predictions, dim=0)
             labels = torch.cat(all_labels, dim=0)
 
-            computed_metrics = self.compute_metrics(predictions, labels)
+            computed_metrics = (
+                self.compute_metrics(predictions, labels)
+                if self.compute_metrics is not None
+                else {}
+            )
             metrics.update({f"eval_{k}": v for k, v in computed_metrics.items()})
 
         # Log metrics
@@ -682,11 +701,14 @@ class BaseTrainer:
         # Check if improved
         if self.args.greater_is_better:
             improved = (
-                current_metric > self.best_metric + self.args.early_stopping_threshold
+                current_metric
+                > (self.best_metric or 0.0) + self.args.early_stopping_threshold
             )
         else:
             improved = (
-                current_metric < self.best_metric - self.args.early_stopping_threshold
+                current_metric
+                < (self.best_metric or float("inf"))
+                - self.args.early_stopping_threshold
             )
 
         if improved:
@@ -720,8 +742,14 @@ class BaseTrainer:
         # Save optimizer and scheduler
         torch.save(
             {
-                "optimizer": self.optimizer.state_dict(),
-                "lr_scheduler": self.lr_scheduler.state_dict(),
+                "optimizer": (
+                    self.optimizer.state_dict() if self.optimizer is not None else None
+                ),
+                "lr_scheduler": (
+                    self.lr_scheduler.state_dict()
+                    if self.lr_scheduler is not None
+                    else None
+                ),
                 "scaler": self.scaler.state_dict() if self.scaler else None,
                 "global_step": self.global_step,
                 "epoch": self.epoch,
@@ -740,10 +768,10 @@ class BaseTrainer:
             self.best_model_checkpoint is None
             or checkpoint_dir == self.best_model_checkpoint
         ):
-            self.best_model_checkpoint = checkpoint_dir
+            self.best_model_checkpoint: Optional[str] = checkpoint_dir
 
         # Delete old checkpoints if limit is set
-        if self.args.save_total_limit is not None:
+        if self.args.save_total_limit is not None and self.args.save_total_limit > 0:
             self._delete_old_checkpoints()
 
     def _load_checkpoint(self, checkpoint_dir: str) -> None:
@@ -798,7 +826,10 @@ class BaseTrainer:
         checkpoints.sort(key=lambda x: int(x.split("-")[-1]))
 
         # Delete oldest checkpoints
-        while len(checkpoints) > self.args.save_total_limit:
+        save_limit = (
+            self.args.save_total_limit if self.args.save_total_limit is not None else 0
+        )
+        while len(checkpoints) > save_limit:
             checkpoint_to_delete = checkpoints.pop(0)
 
             # Don't delete best model

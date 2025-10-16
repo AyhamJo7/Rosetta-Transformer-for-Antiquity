@@ -5,7 +5,7 @@ loading from YAML files and environment variables.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import yaml
 from pydantic import Field, field_validator
@@ -256,7 +256,7 @@ class Config(BaseSettings):
     output_dir: str = Field(default="outputs")
 
     @classmethod
-    def load_from_yaml(cls, yaml_path: str | Path) -> "Config":
+    def load_from_yaml(cls, yaml_path: Union[str, Path]) -> "Config":
         """Load configuration from a YAML file.
 
         Args:
@@ -282,7 +282,7 @@ class Config(BaseSettings):
 
         return cls(**config_dict)
 
-    def save_to_yaml(self, yaml_path: str | Path) -> None:
+    def save_to_yaml(self, yaml_path: Union[str, Path]) -> None:
         """Save configuration to a YAML file.
 
         Args:

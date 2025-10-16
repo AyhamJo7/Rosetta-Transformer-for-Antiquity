@@ -5,7 +5,7 @@ configurations to ensure reproducible results across different runs.
 """
 
 import random
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
@@ -96,7 +96,7 @@ def get_device(device: Optional[str] = None) -> torch.device:
         )
 
 
-def get_device_info() -> Dict[str, any]:
+def get_device_info() -> Dict[str, Any]:
     """Get detailed information about available compute devices.
 
     Returns:
@@ -178,7 +178,8 @@ def print_device_info() -> None:
             # Get additional device properties
             props = torch.cuda.get_device_properties(i)
             memory_gb = props.total_memory / (1024**3)
-            print(f"  [{i}] {device_name}")
+            device_name_str: str = device_name  # Type annotation for mypy
+            print(f"  [{i}] {device_name_str}")
             print(f"      Total Memory: {memory_gb:.2f} GB")
             print(f"      Compute Capability: {props.major}.{props.minor}")
     print()

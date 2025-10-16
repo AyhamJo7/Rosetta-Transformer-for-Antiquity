@@ -171,7 +171,7 @@ class TextAligner:
             parallel_texts = []
             for idx, (src, tgt, score) in enumerate(alignments):
                 parallel_texts.append(
-                    ParallelText(
+                    ParallelText(  # type: ignore[call-arg]
                         source_text=src,
                         target_text=tgt,
                         alignment_score=score,
@@ -196,7 +196,7 @@ class TextAligner:
 
             if score >= self.min_alignment_score:
                 return [
-                    ParallelText(
+                    ParallelText(  # type: ignore[call-arg]
                         source_text=source_doc.text,
                         target_text=target_doc.text,
                         alignment_score=score,

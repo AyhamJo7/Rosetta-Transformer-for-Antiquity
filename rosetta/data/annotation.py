@@ -127,7 +127,7 @@ class NERAnnotator:
             label = self._map_spacy_label(ent.label_)
 
             # Create entity
-            entity = Entity(
+            entity = Entity(  # type: ignore[call-arg]
                 text=ent.text,
                 label=label,
                 start=ent.start_char,
@@ -140,7 +140,7 @@ class NERAnnotator:
         # Extract POS tags
         pos_tags = [(token.text, token.pos_) for token in doc]
 
-        return AnnotatedDocument(
+        return AnnotatedDocument(  # type: ignore[call-arg]
             id=document.id,
             text=document.text,
             language=document.language,
@@ -180,7 +180,7 @@ class NERAnnotator:
                     # Get actual text (preserving case)
                     entity_text = document.text[idx : idx + len(keyword)]
 
-                    entity = Entity(
+                    entity = Entity(  # type: ignore[call-arg]
                         text=entity_text,
                         label=label,
                         start=idx,
@@ -194,7 +194,7 @@ class NERAnnotator:
         # Remove overlapping entities (keep higher confidence)
         entities = self._remove_overlapping_entities(entities)
 
-        return AnnotatedDocument(
+        return AnnotatedDocument(  # type: ignore[call-arg]
             id=document.id,
             text=document.text,
             language=document.language,

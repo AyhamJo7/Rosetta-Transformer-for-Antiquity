@@ -6,7 +6,7 @@ Relation Extraction (RE) with class imbalance handling.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
@@ -404,9 +404,17 @@ class TokenClassificationModel(BaseModel):
 
         loss = None
         if labels is not None:
-            if self.use_crf:
+            if self.use_crf and self.crf is not None:
                 # Use CRF loss
-                loss = self.crf(logits, labels, attention_mask.bool())
+                if attention_mask is not None:
+                    loss = self.crf(logits, labels, attention_mask.bool())
+                else:
+                    # Create a default mask if None
+                    batch_size, seq_len = labels.shape
+                    mask = torch.ones(
+                        batch_size, seq_len, dtype=torch.bool, device=labels.device
+                    )
+                    loss = self.crf(logits, labels, mask)
             else:
                 # Use cross-entropy loss
                 loss_fct = nn.CrossEntropyLoss()
@@ -433,11 +441,17 @@ class TokenClassificationModel(BaseModel):
         with torch.no_grad():
             outputs = self.forward(input_ids=input_ids, attention_mask=attention_mask)
 
-            if self.use_crf:
-                predictions = self.crf.decode(outputs.logits, attention_mask.bool())
+            if self.use_crf and self.crf is not None:
+                if attention_mask is not None:
+                    predictions = self.crf.decode(outputs.logits, attention_mask.bool())
+                else:
+                    predictions = self.crf.decode(outputs.logits, None)
             else:
-                predictions = torch.argmax(outputs.logits, dim=-1)
-                predictions = predictions.tolist()
+                if outputs.logits is not None:
+                    predictions = torch.argmax(outputs.logits, dim=-1)
+                    predictions = predictions.tolist()
+                else:
+                    predictions = []
 
         return predictions
 
@@ -624,7 +638,7 @@ class TokenTaskTrainer(BaseTrainer):
         args: TokenTaskArguments,
         train_dataloader: Optional[DataLoader] = None,
         eval_dataloader: Optional[DataLoader] = None,
-        compute_metrics: Optional[callable] = None,
+        compute_metrics: Optional[Callable] = None,
     ):
         """Initialize trainer.
 
@@ -640,9 +654,12 @@ class TokenTaskTrainer(BaseTrainer):
         )
 
         # Setup focal loss if requested
-        if args.use_focal_loss:
+        # Note: TokenTaskArguments may have these attributes, but mypy doesn't see them
+        # through TrainingArguments, so we need type guards
+        token_args = args  # Type hint: TokenTaskArguments
+        if hasattr(token_args, "use_focal_loss") and token_args.use_focal_loss:  # type: ignore[attr-defined]
             logger.info(
-                f"Using focal loss (alpha={args.focal_alpha}, gamma={args.focal_gamma})"
+                f"Using focal loss (alpha={token_args.focal_alpha}, gamma={token_args.focal_gamma})"  # type: ignore[attr-defined]
             )
 
     def compute_loss(self, model: nn.Module, inputs: Dict) -> torch.Tensor:
@@ -661,10 +678,11 @@ class TokenTaskTrainer(BaseTrainer):
             return outputs.loss
 
         # Manual loss computation for focal loss
-        if self.args.use_focal_loss:
+        token_args = self.args  # Type: TokenTaskArguments
+        if hasattr(token_args, "use_focal_loss") and token_args.use_focal_loss:  # type: ignore[attr-defined]
             focal_loss_fn = FocalLoss(
-                alpha=self.args.focal_alpha,
-                gamma=self.args.focal_gamma,
+                alpha=token_args.focal_alpha,  # type: ignore[attr-defined]
+                gamma=token_args.focal_gamma,  # type: ignore[attr-defined]
             )
 
             loss = focal_loss_fn(
@@ -672,10 +690,11 @@ class TokenTaskTrainer(BaseTrainer):
                 inputs["labels"].view(-1),
             )
         else:
+            class_weights = getattr(token_args, "class_weights", None)
             loss_fct = nn.CrossEntropyLoss(
                 weight=(
-                    torch.tensor(self.args.class_weights).to(self.device)
-                    if self.args.class_weights
+                    torch.tensor(class_weights).to(self.device)
+                    if class_weights
                     else None
                 )
             )

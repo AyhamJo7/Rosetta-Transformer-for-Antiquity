@@ -5,7 +5,7 @@ tasks on ancient texts, with support for mBART, mT5, and custom metrics.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -280,7 +280,7 @@ class TransliterationTrainer(BaseTrainer):
         args: Seq2SeqArguments,
         train_dataloader: Optional[DataLoader] = None,
         eval_dataloader: Optional[DataLoader] = None,
-        compute_metrics: Optional[callable] = None,
+        compute_metrics: Optional[Callable] = None,
         tokenizer: Optional[PreTrainedTokenizer] = None,
     ):
         """Initialize transliteration trainer.
@@ -308,7 +308,11 @@ class TransliterationTrainer(BaseTrainer):
         Returns:
             Dictionary of evaluation metrics
         """
-        if not self.args.predict_with_generate:
+        seq2seq_args = self.args  # Type: Seq2SeqArguments
+        if not (
+            hasattr(seq2seq_args, "predict_with_generate")
+            and seq2seq_args.predict_with_generate
+        ):  # type: ignore[attr-defined]
             return super().evaluate()
 
         if self.eval_dataloader is None:
@@ -336,22 +340,28 @@ class TransliterationTrainer(BaseTrainer):
                     all_losses.append(outputs.loss.item())
 
                 # Generate predictions
+                seq2seq_args = self.args  # Type: Seq2SeqArguments
+                gen_max_len = getattr(seq2seq_args, "generation_max_length", 512)
+                num_beams = getattr(seq2seq_args, "num_beams", 4)
+
                 if isinstance(self.model, Seq2SeqModel):
                     generated_ids = self.model.generate(
                         input_ids=batch["input_ids"],
                         attention_mask=batch.get("attention_mask"),
-                        max_length=self.args.generation_max_length,
-                        num_beams=self.args.num_beams,
-                        length_penalty=self.args.length_penalty,
-                        no_repeat_ngram_size=self.args.no_repeat_ngram_size,
-                        early_stopping=self.args.early_stopping,
+                        max_length=gen_max_len,
+                        num_beams=num_beams,
+                        length_penalty=getattr(seq2seq_args, "length_penalty", 1.0),
+                        no_repeat_ngram_size=getattr(
+                            seq2seq_args, "no_repeat_ngram_size", 3
+                        ),
+                        early_stopping=getattr(seq2seq_args, "early_stopping", True),
                     )
                 else:
                     generated_ids = self.model.generate(
                         input_ids=batch["input_ids"],
                         attention_mask=batch.get("attention_mask"),
-                        max_length=self.args.generation_max_length,
-                        num_beams=self.args.num_beams,
+                        max_length=gen_max_len,
+                        num_beams=num_beams,
                     )
 
                 all_predictions.extend(generated_ids.cpu().numpy())
@@ -359,9 +369,10 @@ class TransliterationTrainer(BaseTrainer):
                 if "labels" in batch:
                     labels = batch["labels"].cpu().numpy()
                     # Replace -100 with pad token
-                    labels = np.where(
-                        labels != -100, labels, self.tokenizer.pad_token_id
+                    pad_token_id = (
+                        self.tokenizer.pad_token_id if self.tokenizer is not None else 0
                     )
+                    labels = np.where(labels != -100, labels, pad_token_id)
                     all_labels.extend(labels)
 
         # Compute metrics
@@ -370,7 +381,12 @@ class TransliterationTrainer(BaseTrainer):
         if all_losses:
             metrics["eval_loss"] = np.mean(all_losses)
 
-        if self.compute_metrics and all_predictions and all_labels:
+        if (
+            self.compute_metrics
+            and all_predictions
+            and all_labels
+            and self.tokenizer is not None
+        ):
             # Decode predictions and labels
             decoded_preds = self.tokenizer.batch_decode(
                 all_predictions, skip_special_tokens=True
@@ -381,7 +397,11 @@ class TransliterationTrainer(BaseTrainer):
             )
 
             # Compute metrics
-            computed_metrics = self.compute_metrics(decoded_preds, decoded_labels)
+            computed_metrics = (
+                self.compute_metrics(decoded_preds, decoded_labels)
+                if self.compute_metrics is not None
+                else {}
+            )
             metrics.update({f"eval_{k}": v for k, v in computed_metrics.items()})
 
         # Log metrics
