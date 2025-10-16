@@ -365,6 +365,7 @@ class REAnnotator:
                             tail=tail,
                             label=relation_label,
                             confidence=confidence,
+                            evidence_text=None,
                         )
 
                         relations.append(relation)

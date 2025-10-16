@@ -356,9 +356,11 @@ class TokenClassificationModel(BaseModel):
 
         # Optional CRF layer
         if use_crf:
-            self.crf = ConditionalRandomField(num_labels)
+            self.crf: Optional[ConditionalRandomField] = ConditionalRandomField(
+                num_labels
+            )
         else:
-            self.crf = None
+            self.crf: Optional[ConditionalRandomField] = None
 
         # Store config
         self.config.update(

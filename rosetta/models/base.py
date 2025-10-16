@@ -352,8 +352,8 @@ class BaseTrainer:
         # Training state
         self.global_step = 0
         self.epoch = 0
-        self.best_metric = None
-        self.best_model_checkpoint = None
+        self.best_metric: Optional[float] = None
+        self.best_model_checkpoint: Optional[str] = None
         self.early_stopping_counter = 0
 
         # MLflow
@@ -768,7 +768,7 @@ class BaseTrainer:
             self.best_model_checkpoint is None
             or checkpoint_dir == self.best_model_checkpoint
         ):
-            self.best_model_checkpoint: Optional[str] = checkpoint_dir
+            self.best_model_checkpoint = checkpoint_dir
 
         # Delete old checkpoints if limit is set
         if self.args.save_total_limit is not None and self.args.save_total_limit > 0:
