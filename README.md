@@ -1,7 +1,8 @@
 # Rosetta-Transformer-for-Antiquity
 [![CI](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml/badge.svg)](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 <p align="center">
   <img src="rosetta/Rosetta-Transformer-for-Antiquity.png" alt="Rosetta-Transformer-for-Antiquity Logo" width="400"/>
@@ -602,33 +603,21 @@ All pull requests must pass CI checks before merging.
 
 ## Contributing
 
-We welcome contributions! Please follow these steps:
+We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on how to get started, and our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for information on our community standards.
 
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and add tests
-4. **Ensure all tests pass**: `pytest`
-5. **Run code quality checks**: `pre-commit run --all-files`
-6. **Commit your changes**: `git commit -m 'Add amazing feature'`
-7. **Push to the branch**: `git push origin feature/amazing-feature`
-8. **Open a Pull Request**
+## Contributors
 
-### Contribution Guidelines
+A big thank you to all our contributors!
 
-- Follow PEP 8 style guide
-- Add type hints to all functions
-- Write comprehensive docstrings
-- Include unit tests for new features
-- Update documentation as needed
-- Keep commits atomic and well-described
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+<a href="https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AyhamJo7/Rosetta-Transformer-for-Antiquity" />
+</a>
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 
