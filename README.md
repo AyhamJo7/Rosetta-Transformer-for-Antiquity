@@ -1,6 +1,6 @@
 # Rosetta-Transformer-for-Antiquity
-[![CI](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml/badge.svg)](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml/badge.svg)](https://github.com/AyhamJo7/Rosetta-Transformer-for-Antiquity/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
