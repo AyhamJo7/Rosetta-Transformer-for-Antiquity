@@ -4,7 +4,10 @@
 -r requirements.in
 
 # --- LINTING & FORMATTING ---
-black
+# black is pinned: the CI matrix (py3.9 + py3.10) otherwise resolves different
+# black versions whose multiline-string formatting disagrees, so `black --check`
+# passed on one Python and failed on the other. Pin so every job formats identically.
+black==24.10.0
 ruff
 isort
 
