@@ -70,8 +70,7 @@ class FeedbackStore:
         cursor = conn.cursor()
 
         # Create feedback table
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS feedback (
                 id TEXT PRIMARY KEY,
                 task_type TEXT NOT NULL,
@@ -82,8 +81,7 @@ class FeedbackStore:
                 created_at TEXT NOT NULL,
                 used_for_training INTEGER DEFAULT 0
             )
-        """
-        )
+        """)
 
         # Create indexes
         cursor.execute(
@@ -280,13 +278,11 @@ class FeedbackStore:
             conn = sqlite3.connect(str(self.db_path))
             cursor = conn.cursor()
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT task_type, COUNT(*) as count
                 FROM feedback
                 GROUP BY task_type
-            """
-            )
+            """)
 
             stats = dict(cursor.fetchall())
             conn.close()
