@@ -46,6 +46,9 @@ ensure_newline_before_comments = true
 
 [tool.ruff]
 line-length = 88
+# Newer ruff also formats code blocks inside Markdown; keep the checks on
+# Python sources, as they were written for.
+extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = [
