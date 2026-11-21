@@ -5,7 +5,7 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 <p align="center">
-  <img src="rosetta/Rosetta-Transformer-for-Antiquity.png" alt="Rosetta-Transformer-for-Antiquity Logo" width="400"/>
+  <img src=".github/assets/banner.png" alt="Rosetta Transformer for Antiquity" width="800" />
 </p>
 
 ## Overview
